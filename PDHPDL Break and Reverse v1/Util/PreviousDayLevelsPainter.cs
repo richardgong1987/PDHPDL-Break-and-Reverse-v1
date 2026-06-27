@@ -39,6 +39,6 @@ public class PreviousDayLevelsPainter
         _chart.RemoveObject(PdhLineName);
         _chart.RemoveObject(PdlLineName);
         _chart.DrawHorizontalLine(PdhLineName, pdh, Color.Red, 5, LineStyle.Solid);
-        _chart.DrawHorizontalLine(PdlLineName, pdl, Color.Blue, 5, LineStyle.Solid);
+        _chart.DrawHorizontalLine(PdlLineName, pdl, Color.Lime, 5, LineStyle.Solid);
     }
 }

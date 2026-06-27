@@ -12,9 +12,18 @@ public class PDHPDLBreakandReversev1 : Robot
     [Parameter(DefaultValue = "Hello world!")]
     public string Message { get; set; }
 
+    private PreviousDayLevelsPainter _previousDayLevelsPainter;
+
     protected override void OnStart()
     {
-        Print(Message);
+        _previousDayLevelsPainter = new PreviousDayLevelsPainter(Chart, MarketData, SymbolName);
+        _previousDayLevelsPainter.Draw();
+        Print("PDH/PDL painter started.");
+    }
+
+    protected override void OnBar()
+    {
+        _previousDayLevelsPainter.Draw();
     }
 
     protected override void OnTick()
