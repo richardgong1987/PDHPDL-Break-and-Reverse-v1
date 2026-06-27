@@ -9,12 +9,6 @@ namespace cAlgo.Robots;
 [Robot(AccessRights = AccessRights.None, AddIndicators = true)]
 public class PDHPDLBreakandReversev1 : Robot
 {
-    [Parameter(DefaultValue = "Hello world!")]
-    public string Message { get; set; }
-
-    [Parameter("Days To Draw", DefaultValue = 10)]
-    public int DaysToDraw { get; set; }
-
     [Parameter("Line Thickness", DefaultValue = 3)]
     public int LineThickness { get; set; }
 
@@ -22,17 +16,18 @@ public class PDHPDLBreakandReversev1 : Robot
 
     protected override void OnStart()
     {
+        int daysToDraw = PdhpdlLineUtils.GetDaysToDraw(Bars);
         _pdhpdlLines = new PdhpdlLines(
             Chart,
             MarketData,
             SymbolName,
-            DaysToDraw,
+            daysToDraw,
             LineThickness
         );
 
         _pdhpdlLines.Draw();
 
-        Print("PDH/PDL step painter started.");
+        Print("PDH/PDL step painter started. DaysToDraw: {0}", daysToDraw);
     }
 
     protected override void OnBar()
