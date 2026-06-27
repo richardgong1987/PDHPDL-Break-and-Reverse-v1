@@ -18,11 +18,11 @@ public class PDHPDLBreakandReversev1 : Robot
     [Parameter("Line Thickness", DefaultValue = 3)]
     public int LineThickness { get; set; }
 
-    private PreviousDayLevelsPainter _previousDayLevelsPainter;
+    private PdhpdlLines _pdhpdlLines;
 
     protected override void OnStart()
     {
-        _previousDayLevelsPainter = new PreviousDayLevelsPainter(
+        _pdhpdlLines = new PdhpdlLines(
             Chart,
             MarketData,
             SymbolName,
@@ -30,14 +30,14 @@ public class PDHPDLBreakandReversev1 : Robot
             LineThickness
         );
 
-        _previousDayLevelsPainter.Draw();
+        _pdhpdlLines.Draw();
 
         Print("PDH/PDL step painter started.");
     }
 
     protected override void OnBar()
     {
-        _previousDayLevelsPainter.Draw();
+        _pdhpdlLines.Draw();
     }
 
     protected override void OnTick()

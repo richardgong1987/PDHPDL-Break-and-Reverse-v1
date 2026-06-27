@@ -5,7 +5,7 @@ using cAlgo.API.Internals;
 
 namespace cAlgo.Robots;
 
-public class PreviousDayLevelsPainter
+public class PdhpdlLines
 {
     private const string Prefix = "PDH_PDL_STEP_";
 
@@ -18,7 +18,7 @@ public class PreviousDayLevelsPainter
 
     private DateTime _lastDailyOpenTime = DateTime.MinValue;
 
-    public PreviousDayLevelsPainter(
+    public PdhpdlLines(
         Chart chart,
         MarketData marketData,
         string symbolName,
