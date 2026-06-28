@@ -120,7 +120,7 @@ public class PDHPDLBreakandReversev1 : Robot
             );
         }
         _signalMarkers.Draw(signal);
-        _signalMarkers.Draw(signal);
+        _orderExecutor.ExecuteIfSignal(signal);
     }
 
     protected override void OnStop()
