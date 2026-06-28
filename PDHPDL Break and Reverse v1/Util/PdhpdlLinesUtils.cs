@@ -3,7 +3,7 @@ using cAlgo.API;
 
 namespace cAlgo.Robots;
 
-public class PdhpdlLineUtils
+public class PdhpdlLinesUtils
 {
     public static int GetDaysToDraw(Bars chartBars)
     {
