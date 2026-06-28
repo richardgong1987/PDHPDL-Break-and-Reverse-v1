@@ -125,6 +125,7 @@ public class PDHPDLBreakandReversev1 : Robot
 
     protected override void OnStop()
     {
+        Print("*****cBot stopped.*******************");
         _signalMarkers?.Clear();
         _pdhpdlLines?.Clear();
     }
