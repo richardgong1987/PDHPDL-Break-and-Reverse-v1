@@ -32,6 +32,10 @@ public class PdhpdlOrderPlan
 
     public double VolumePerLegInUnits { get; set; }
 
+    public double RiskMoney { get; set; }
+
+    public double EstimatedRiskMoney { get; set; }
+
     public string Tp1Label { get; set; }
 
     public string RunnerLabel { get; set; }
