@@ -25,4 +25,24 @@ public class PdhpdlUtils
     {
         return low < pdl && close > pdl;
     }
+
+    public static bool TryGetPreviousDayLevels(
+        Bars dailyBars,
+        out double pdh,
+        out double pdl
+    )
+    {
+        pdh = double.NaN;
+        pdl = double.NaN;
+
+        if (dailyBars == null || dailyBars.Count < 2)
+            return false;
+
+        int previousDailyIndex = dailyBars.Count - 2;
+
+        pdh = dailyBars.HighPrices[previousDailyIndex];
+        pdl = dailyBars.LowPrices[previousDailyIndex];
+
+        return true;
+    }
 }
