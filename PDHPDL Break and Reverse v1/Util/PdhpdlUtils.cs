@@ -3,7 +3,7 @@ using cAlgo.API;
 
 namespace cAlgo.Robots;
 
-public class PdhpdlLinesUtils
+public class PdhpdlUtils
 {
     public static int GetDaysToDraw(Bars chartBars)
     {
@@ -14,5 +14,15 @@ public class PdhpdlLinesUtils
 
         int days = (chartEndDate - chartStartDate).Days;
         return Math.Max(2, days + 2);
+    }
+
+    public static bool IsFalseBreakUp(double high, double close, double pdh)
+    {
+        return high > pdh && close < pdh;
+    }
+
+    public static bool IsFalseBreakDown(double low, double close, double pdl)
+    {
+        return low < pdl && close > pdl;
     }
 }

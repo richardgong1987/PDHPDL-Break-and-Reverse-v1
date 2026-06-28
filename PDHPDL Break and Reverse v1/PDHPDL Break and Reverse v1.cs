@@ -16,7 +16,7 @@ public class PDHPDLBreakandReversev1 : Robot
 
     protected override void OnStart()
     {
-        int daysToDraw = PdhpdlLinesUtils.GetDaysToDraw(Bars);
+        int daysToDraw = PdhpdlUtils.GetDaysToDraw(Bars);
         _pdhpdlLines = new PdhpdlLines(
             Chart,
             MarketData,
