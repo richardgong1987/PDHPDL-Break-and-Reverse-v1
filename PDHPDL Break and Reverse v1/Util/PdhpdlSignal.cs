@@ -7,7 +7,9 @@ public class PdhpdlSignal
     public bool HasData { get; set; }
 
     public DateTime BarTime { get; set; }
-
+    
+    public int BarIndex { get; set; }
+    
     public double High { get; set; }
 
     public double Low { get; set; }

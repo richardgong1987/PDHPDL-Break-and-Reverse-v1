@@ -15,8 +15,13 @@ public class PDHPDLBreakandReversev1 : Robot
     [Parameter("Show Debug Logs", DefaultValue = false)]
     public bool ShowDebugLogs { get; set; }
 
+    [Parameter("Signal Marker Offset Ticks", DefaultValue = 20)]
+    public int SignalMarkerOffsetTicks { get; set; }
+
+
     private PdhpdlLines _pdhpdlLines;
     private Bars _dailyBars;
+    private PdhpdlSignalMarkers _signalMarkers;
 
     protected override void OnStart()
     {
@@ -29,6 +34,13 @@ public class PDHPDLBreakandReversev1 : Robot
             LineThickness
         );
         _dailyBars = MarketData.GetBars(TimeFrame.Daily, SymbolName);
+
+        _signalMarkers = new PdhpdlSignalMarkers(
+            Chart,
+            Symbol.TickSize,
+            SignalMarkerOffsetTicks
+        );
+
         _pdhpdlLines.Draw();
 
         Print("PDH/PDL step painter started. DaysToDraw: {0}", daysToDraw);
@@ -92,5 +104,6 @@ public class PDHPDLBreakandReversev1 : Robot
                 signal.Pdh
             );
         }
+        _signalMarkers.Draw(signal);
     }
 }

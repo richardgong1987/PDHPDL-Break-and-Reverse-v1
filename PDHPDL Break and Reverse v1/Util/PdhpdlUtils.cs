@@ -76,6 +76,7 @@ public class PdhpdlUtils
         bool longSignal = IsFalseBreakDown(low, close, pdl);
 
         signal.HasData = true;
+        signal.BarIndex = closedBarIndex;
         signal.BarTime = barTime;
         signal.High = high;
         signal.Low = low;
