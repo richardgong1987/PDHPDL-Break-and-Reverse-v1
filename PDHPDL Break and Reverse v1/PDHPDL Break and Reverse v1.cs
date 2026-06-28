@@ -50,6 +50,47 @@ public class PDHPDLBreakandReversev1 : Robot
 
     private void DetectFalseBreakoutOnCloseBar()
     {
-        PdhpdlUtils.DetectFalseBreakoutOnClosedBar(Bars, _dailyBars, ShowDebugLogs);
+        PdhpdlSignal signal = PdhpdlUtils.DetectFalseBreakoutOnClosedBar(
+            Bars,
+            _dailyBars
+        );
+
+        if (!signal.HasData)
+            return;
+
+        if (ShowDebugLogs)
+        {
+            Print(
+                "Bar closed | Time: {0}, High: {1}, Low: {2}, Close: {3}, PDH: {4}, PDL: {5}",
+                signal.BarTime,
+                signal.High,
+                signal.Low,
+                signal.Close,
+                signal.Pdh,
+                signal.Pdl
+            );
+        }
+
+        if (signal.IsLongSignal)
+        {
+            Print(
+                "LONG trigger | Time: {0}, Low: {1}, Close: {2}, PDL: {3}",
+                signal.BarTime,
+                signal.Low,
+                signal.Close,
+                signal.Pdl
+            );
+        }
+
+        if (signal.IsShortSignal)
+        {
+            Print(
+                "SHORT trigger | Time: {0}, High: {1}, Close: {2}, PDH: {3}",
+                signal.BarTime,
+                signal.High,
+                signal.Close,
+                signal.Pdh
+            );
+        }
     }
 }
