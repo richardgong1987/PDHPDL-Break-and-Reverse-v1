@@ -27,6 +27,7 @@ public class PdhpdlOrderExecutor
         Robot robot,
         Symbol symbol,
         string symbolName,
+        string timeFrame,
         double riskPct,
         int stopOffsetTicks,
         double tp1R,
@@ -37,6 +38,7 @@ public class PdhpdlOrderExecutor
         _robot = robot;
         _symbol = symbol;
         _symbolName = symbolName;
+        _timeFrame = timeFrame;
 
         _riskPct = riskPct;
         _stopOffsetTicks = stopOffsetTicks;
@@ -237,32 +239,39 @@ public class PdhpdlOrderExecutor
 
     private void WriteCsvRecord(PdhpdlOrderPlan plan)
     {
-        string side = plan.TradeType == TradeType.Buy ? "B" : "S";
-        string keyLevel = plan.TradeType == TradeType.Buy ? "PDL" : "PDH";
-
-        PdhpdlTradeCsvRecord record = new PdhpdlTradeCsvRecord
+        try
         {
-            Side = side,
-            KeyLevel = keyLevel,
-            Signal = "false-breakout",
-            CloseEntryResult = "",
-            Pullback25Result = "",
-            Pullback382Result = "",
-            Pullback50Result = "",
-            Comment = "",
-            Symbol = _symbolName,
-            TimeFrame = _timeFrame,
-            EntryTime = _robot.Server.Time,
-            EntryPrice = plan.EntryPrice,
-            StopPrice = plan.StopPrice,
-            Tp1Price = plan.Tp1Price,
-            Tp2Price = plan.Tp2Price,
-            RiskPrice = plan.RiskPrice,
-            VolumeInUnits = plan.TotalVolumeInUnits
-        };
+            string side = plan.TradeType == TradeType.Buy ? "B" : "S";
+            string keyLevel = plan.TradeType == TradeType.Buy ? "PDL" : "PDH";
 
-        _csvLogger.Append(record);
+            PdhpdlTradeCsvRecord record = new PdhpdlTradeCsvRecord
+            {
+                Side = side,
+                KeyLevel = keyLevel,
+                Signal = "false-breakout",
+                CloseEntryResult = "",
+                Pullback25Result = "",
+                Pullback382Result = "",
+                Pullback50Result = "",
+                Comment = "",
+                Symbol = _symbolName,
+                TimeFrame = _timeFrame,
+                EntryTime = _robot.Server.Time,
+                EntryPrice = plan.EntryPrice,
+                StopPrice = plan.StopPrice,
+                Tp1Price = plan.Tp1Price,
+                Tp2Price = plan.Tp2Price,
+                RiskPrice = plan.RiskPrice,
+                VolumeInUnits = plan.TotalVolumeInUnits
+            };
 
-        _robot.Print("*****CSV trade record added.");
+            _csvLogger.Append(record);
+
+            _robot.Print("*****CSV trade record added. Path: {0}", _csvLogger.FilePath);
+        }
+        catch (Exception ex)
+        {
+            _robot.Print("*****CSV write failed | {0}", ex.Message);
+        }
     }
 }

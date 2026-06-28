@@ -59,6 +59,7 @@ public class PDHPDLBreakandReversev1 : Robot
             this,
             Symbol,
             SymbolName,
+            Bars.TimeFrame.ToString(),
             RiskPct,
             StopOffsetTicks,
             Tp1R,

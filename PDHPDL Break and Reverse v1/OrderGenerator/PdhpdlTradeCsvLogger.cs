@@ -49,8 +49,7 @@ public class PdhpdlTradeCsvLogger
             Escape(record.RiskPrice.ToString(CultureInfo.InvariantCulture)),
             Escape(record.VolumeInUnits.ToString(CultureInfo.InvariantCulture))
         );
-
-        File.AppendAllText(_filePath, line + Environment.NewLine, Encoding.UTF8);
+        File.AppendAllText(_filePath, line + Environment.NewLine, new UTF8Encoding(true));
     }
 
     private void EnsureFileExists()
@@ -80,7 +79,7 @@ public class PdhpdlTradeCsvLogger
             "VolumeInUnits"
         );
 
-        File.WriteAllText(_filePath, header + Environment.NewLine, Encoding.UTF8);
+        File.WriteAllText(_filePath, header + Environment.NewLine,new UTF8Encoding(true));
     }
 
     private int GetNextId()
