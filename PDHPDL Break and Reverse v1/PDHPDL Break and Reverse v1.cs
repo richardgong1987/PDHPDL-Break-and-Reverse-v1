@@ -37,6 +37,7 @@ public class PDHPDLBreakandReversev1 : Robot
     protected override void OnBar()
     {
         _pdhpdlLines.Draw();
+        DetectFalseBreakoutOnCloseBar();
     }
 
     protected override void OnTick()
@@ -49,6 +50,6 @@ public class PDHPDLBreakandReversev1 : Robot
 
     private void DetectFalseBreakoutOnCloseBar()
     {
-        PdhpdlUtils.DetectFalseBreakoutOnClosedBar(Bars, _dailyBars, false);
+        PdhpdlUtils.DetectFalseBreakoutOnClosedBar(Bars, _dailyBars, ShowDebugLogs);
     }
 }
