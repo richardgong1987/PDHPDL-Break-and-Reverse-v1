@@ -61,7 +61,7 @@ public class PDHPDLBreakandReversev1 : Robot
         if (ShowDebugLogs)
         {
             Print(
-                "Bar closed | Time: {0}, High: {1}, Low: {2}, Close: {3}, PDH: {4}, PDL: {5}",
+                "*****Bar closed | Time: {0}, High: {1}, Low: {2}, Close: {3}, PDH: {4}, PDL: {5}",
                 signal.BarTime,
                 signal.High,
                 signal.Low,
@@ -74,7 +74,7 @@ public class PDHPDLBreakandReversev1 : Robot
         if (signal.IsLongSignal)
         {
             Print(
-                "LONG trigger | Time: {0}, Low: {1}, Close: {2}, PDL: {3}",
+                "*****LONG trigger | Time: {0}, Low: {1}, Close: {2}, PDL: {3}",
                 signal.BarTime,
                 signal.Low,
                 signal.Close,
@@ -85,7 +85,7 @@ public class PDHPDLBreakandReversev1 : Robot
         if (signal.IsShortSignal)
         {
             Print(
-                "SHORT trigger | Time: {0}, High: {1}, Close: {2}, PDH: {3}",
+                "*****SHORT trigger | Time: {0}, High: {1}, Close: {2}, PDH: {3}",
                 signal.BarTime,
                 signal.High,
                 signal.Close,
