@@ -145,7 +145,7 @@ public class PdhpdlLines
         _objectNames.Add(name);
     }
 
-    private void Clear()
+    public void Clear()
     {
         foreach (string name in _objectNames)
         {

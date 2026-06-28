@@ -14,11 +14,7 @@ public class PDHPDLBreakandReversev1 : Robot
 
     [Parameter("Show Debug Logs", DefaultValue = false)]
     public bool ShowDebugLogs { get; set; }
-
-    [Parameter("Signal Marker Offset Ticks", DefaultValue = 20)]
-    public int SignalMarkerOffsetTicks { get; set; }
-
-
+    
     private PdhpdlLines _pdhpdlLines;
     private Bars _dailyBars;
     private PdhpdlSignalMarkers _signalMarkers;
@@ -48,7 +44,7 @@ public class PDHPDLBreakandReversev1 : Robot
     protected override void OnBar()
     {
         _pdhpdlLines.Draw();
-        DetectFalseBreakoutOnCloseBar();
+        DetectFalseBreakoutOnClosedBar();
     }
 
     protected override void OnTick()
@@ -56,7 +52,7 @@ public class PDHPDLBreakandReversev1 : Robot
     }
 
 
-    private void DetectFalseBreakoutOnCloseBar()
+    private void DetectFalseBreakoutOnClosedBar()
     {
         PdhpdlSignal signal = PdhpdlUtils.DetectFalseBreakoutOnClosedBar(
             Bars,
@@ -107,5 +103,6 @@ public class PDHPDLBreakandReversev1 : Robot
     protected override void OnStop()
     {
         _signalMarkers?.Clear();
+        _pdhpdlLines?.Clear();
     }
 }
