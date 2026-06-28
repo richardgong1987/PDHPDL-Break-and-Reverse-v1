@@ -12,7 +12,11 @@ public class PDHPDLBreakandReversev1 : Robot
     [Parameter("Line Thickness", DefaultValue = 3)]
     public int LineThickness { get; set; }
 
+    [Parameter("Show Debug Logs", DefaultValue = false)]
+    public bool ShowDebugLogs { get; set; }
+
     private PdhpdlLines _pdhpdlLines;
+    private Bars _dailyBars;
 
     protected override void OnStart()
     {
@@ -24,7 +28,7 @@ public class PDHPDLBreakandReversev1 : Robot
             daysToDraw,
             LineThickness
         );
-
+        _dailyBars = MarketData.GetBars(TimeFrame.Daily, SymbolName);
         _pdhpdlLines.Draw();
 
         Print("PDH/PDL step painter started. DaysToDraw: {0}", daysToDraw);
@@ -41,5 +45,10 @@ public class PDHPDLBreakandReversev1 : Robot
 
     protected override void OnStop()
     {
+    }
+
+    private void DetectFalseBreakoutOnCloseBar()
+    {
+        PdhpdlUtils.DetectFalseBreakoutOnClosedBar(Bars, _dailyBars, false);
     }
 }
