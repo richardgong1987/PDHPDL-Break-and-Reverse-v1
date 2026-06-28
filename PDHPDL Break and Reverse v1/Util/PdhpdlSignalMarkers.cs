@@ -8,18 +8,23 @@ public class PdhpdlSignalMarkers
 {
     private const string Prefix = "PDH_PDL_SIGNAL_";
 
+    private const int IconOffsetTicks = 120;
+    private const int TextOffsetTicks = 380;
+    private const int TextFontSize = 18;
+
     private readonly Chart _chart;
-    private readonly double _priceOffset;
+    private readonly double _iconOffset;
+    private readonly double _textOffset;
     private readonly HashSet<string> _objectNames = new();
 
     public PdhpdlSignalMarkers(
         Chart chart,
-        double tickSize,
-        int offsetTicks
+        double tickSize
     )
     {
         _chart = chart;
-        _priceOffset = tickSize * offsetTicks;
+        _iconOffset = tickSize * IconOffsetTicks;
+        _textOffset = tickSize * TextOffsetTicks;
     }
 
     public void Draw(PdhpdlSignal signal)
@@ -47,8 +52,9 @@ public class PdhpdlSignalMarkers
     private void DrawLong(PdhpdlSignal signal)
     {
         string key = GetKey(signal);
-        double iconPrice = signal.Low - _priceOffset;
-        double textPrice = signal.Low - _priceOffset * 2;
+
+        double iconPrice = signal.Low - _iconOffset;
+        double textPrice = signal.Low - _textOffset;
 
         string iconName = $"{Prefix}LONG_ICON_{key}";
         string textName = $"{Prefix}LONG_TEXT_{key}";
@@ -72,10 +78,7 @@ public class PdhpdlSignalMarkers
             Color.Lime
         );
 
-        text.FontSize = 14;
-        text.IsBold = true;
-        text.HorizontalAlignment = HorizontalAlignment.Center;
-        text.VerticalAlignment = VerticalAlignment.Center;
+        ApplyTextStyle(text);
 
         _objectNames.Add(iconName);
         _objectNames.Add(textName);
@@ -84,8 +87,9 @@ public class PdhpdlSignalMarkers
     private void DrawShort(PdhpdlSignal signal)
     {
         string key = GetKey(signal);
-        double iconPrice = signal.High + _priceOffset;
-        double textPrice = signal.High + _priceOffset * 2;
+
+        double iconPrice = signal.High + _iconOffset;
+        double textPrice = signal.High + _textOffset;
 
         string iconName = $"{Prefix}SHORT_ICON_{key}";
         string textName = $"{Prefix}SHORT_TEXT_{key}";
@@ -109,13 +113,18 @@ public class PdhpdlSignalMarkers
             Color.Red
         );
 
-        text.FontSize = 14;
-        text.IsBold = true;
-        text.HorizontalAlignment = HorizontalAlignment.Center;
-        text.VerticalAlignment = VerticalAlignment.Center;
+        ApplyTextStyle(text);
 
         _objectNames.Add(iconName);
         _objectNames.Add(textName);
+    }
+
+    private static void ApplyTextStyle(ChartText text)
+    {
+        text.FontSize = TextFontSize;
+        text.IsBold = true;
+        text.HorizontalAlignment = HorizontalAlignment.Center;
+        text.VerticalAlignment = VerticalAlignment.Center;
     }
 
     private void RemoveExisting(string name)

@@ -37,8 +37,7 @@ public class PDHPDLBreakandReversev1 : Robot
 
         _signalMarkers = new PdhpdlSignalMarkers(
             Chart,
-            Symbol.TickSize,
-            SignalMarkerOffsetTicks
+            Symbol.TickSize
         );
 
         _pdhpdlLines.Draw();
@@ -56,9 +55,6 @@ public class PDHPDLBreakandReversev1 : Robot
     {
     }
 
-    protected override void OnStop()
-    {
-    }
 
     private void DetectFalseBreakoutOnCloseBar()
     {
@@ -104,6 +100,12 @@ public class PDHPDLBreakandReversev1 : Robot
                 signal.Pdh
             );
         }
+
         _signalMarkers.Draw(signal);
+    }
+
+    protected override void OnStop()
+    {
+        _signalMarkers?.Clear();
     }
 }
