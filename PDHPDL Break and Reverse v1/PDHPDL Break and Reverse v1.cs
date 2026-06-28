@@ -14,10 +14,24 @@ public class PDHPDLBreakandReversev1 : Robot
 
     [Parameter("Show Debug Logs", DefaultValue = false)]
     public bool ShowDebugLogs { get; set; }
-    
+
+    [Parameter("Risk % per Trade", DefaultValue = 1.0, MinValue = 0.1, MaxValue = 10.0, Step = 0.1)]
+    public double RiskPct { get; set; }
+
+    [Parameter("Stop Offset Ticks", DefaultValue = 15, MinValue = 0, MaxValue = 1000)]
+    public int StopOffsetTicks { get; set; }
+
+    [Parameter("TP1 R", DefaultValue = 2.0, MinValue = 0.5, MaxValue = 20.0, Step = 0.1)]
+    public double Tp1R { get; set; }
+
+    [Parameter("TP2 R", DefaultValue = 4.0, MinValue = 0.5, MaxValue = 20.0, Step = 0.1)]
+    public double Tp2R { get; set; }
+
+
     private PdhpdlLines _pdhpdlLines;
     private Bars _dailyBars;
     private PdhpdlSignalMarkers _signalMarkers;
+    private PdhpdlOrderExecutor _orderExecutor;
 
     protected override void OnStart()
     {
@@ -38,6 +52,15 @@ public class PDHPDLBreakandReversev1 : Robot
 
         _pdhpdlLines.Draw();
 
+        _orderExecutor = new PdhpdlOrderExecutor(
+            this,
+            Symbol,
+            SymbolName,
+            RiskPct,
+            StopOffsetTicks,
+            Tp1R,
+            Tp2R
+        );
         Print("PDH/PDL step painter started. DaysToDraw: {0}", daysToDraw);
     }
 
@@ -96,7 +119,7 @@ public class PDHPDLBreakandReversev1 : Robot
                 signal.Pdh
             );
         }
-
+        _signalMarkers.Draw(signal);
         _signalMarkers.Draw(signal);
     }
 
