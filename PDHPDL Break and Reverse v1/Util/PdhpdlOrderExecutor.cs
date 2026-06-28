@@ -20,6 +20,9 @@ public class PdhpdlOrderExecutor
     private readonly double _tp1R;
     private readonly double _tp2R;
 
+    private readonly string _timeFrame;
+    private readonly PdhpdlTradeCsvLogger _csvLogger;
+
     public PdhpdlOrderExecutor(
         Robot robot,
         Symbol symbol,
@@ -27,7 +30,8 @@ public class PdhpdlOrderExecutor
         double riskPct,
         int stopOffsetTicks,
         double tp1R,
-        double tp2R
+        double tp2R,
+        PdhpdlTradeCsvLogger csvLogger
     )
     {
         _robot = robot;
@@ -38,6 +42,7 @@ public class PdhpdlOrderExecutor
         _stopOffsetTicks = stopOffsetTicks;
         _tp1R = tp1R;
         _tp2R = tp2R;
+        _csvLogger = csvLogger;
     }
 
     public void ExecuteIfSignal(PdhpdlSignal signal)
@@ -227,5 +232,37 @@ public class PdhpdlOrderExecutor
             plan.Tp1Label,
             plan.RunnerLabel
         );
+        WriteCsvRecord(plan);
+    }
+
+    private void WriteCsvRecord(PdhpdlOrderPlan plan)
+    {
+        string side = plan.TradeType == TradeType.Buy ? "B" : "S";
+        string keyLevel = plan.TradeType == TradeType.Buy ? "PDL" : "PDH";
+
+        PdhpdlTradeCsvRecord record = new PdhpdlTradeCsvRecord
+        {
+            Side = side,
+            KeyLevel = keyLevel,
+            Signal = "false-breakout",
+            CloseEntryResult = "",
+            Pullback25Result = "",
+            Pullback382Result = "",
+            Pullback50Result = "",
+            Comment = "",
+            Symbol = _symbolName,
+            TimeFrame = _timeFrame,
+            EntryTime = _robot.Server.Time,
+            EntryPrice = plan.EntryPrice,
+            StopPrice = plan.StopPrice,
+            Tp1Price = plan.Tp1Price,
+            Tp2Price = plan.Tp2Price,
+            RiskPrice = plan.RiskPrice,
+            VolumeInUnits = plan.TotalVolumeInUnits
+        };
+
+        _csvLogger.Append(record);
+
+        _robot.Print("*****CSV trade record added.");
     }
 }
