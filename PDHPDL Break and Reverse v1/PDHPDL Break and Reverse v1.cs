@@ -35,6 +35,7 @@ public class PDHPDLBreakandReversev1 : Robot
     private PdhpdlTradeCsvLogger _csvLogger;
     protected override void OnStart()
     {
+        System.Diagnostics.Debugger.Launch();
         int daysToDraw = PdhpdlUtils.GetDaysToDraw(Bars);
         _pdhpdlLines = new PdhpdlLines(
             Chart,
