@@ -6,7 +6,7 @@ using cAlgo.API.Internals;
 
 namespace cAlgo.Robots;
 
-[Robot(AccessRights = AccessRights.FullAccess, AddIndicators = true)]
+[Robot(TimeZone = TimeZones.UTC, AccessRights = AccessRights.FullAccess, AddIndicators = true)]
 public class PDHPDLBreakandReversev1 : Robot
 {
     [Parameter("Line Thickness", DefaultValue = 3)]
@@ -35,7 +35,13 @@ public class PDHPDLBreakandReversev1 : Robot
     private PdhpdlTradeCsvLogger _csvLogger;
     protected override void OnStart()
     {
-        System.Diagnostics.Debugger.Launch();
+        var result = System.Diagnostics.Debugger.Launch();
+
+        if (result is false)
+        {
+            Print("Debugger launch failed");
+        }
+        
         int daysToDraw = PdhpdlUtils.GetDaysToDraw(Bars);
         _pdhpdlLines = new PdhpdlLines(
             Chart,
