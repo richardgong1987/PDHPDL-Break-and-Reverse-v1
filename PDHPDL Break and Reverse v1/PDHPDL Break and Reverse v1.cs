@@ -6,7 +6,7 @@ using cAlgo.API.Internals;
 
 namespace cAlgo.Robots;
 
-[Robot(TimeZone = TimeZones.UTC, AccessRights = AccessRights.FullAccess, AddIndicators = true)]
+[Robot(TimeZone = TimeZones.TokyoStandardTime, AccessRights = AccessRights.FullAccess, AddIndicators = true)]
 public class PDHPDLBreakandReversev1 : Robot
 {
     [Parameter("Line Thickness", DefaultValue = 3)]
@@ -33,15 +33,9 @@ public class PDHPDLBreakandReversev1 : Robot
     private PdhpdlSignalMarkers _signalMarkers;
     private PdhpdlOrderExecutor _orderExecutor;
     private PdhpdlTradeCsvLogger _csvLogger;
+
     protected override void OnStart()
     {
-        var result = System.Diagnostics.Debugger.Launch();
-
-        if (result is false)
-        {
-            Print("Debugger launch failed");
-        }
-        
         int daysToDraw = PdhpdlUtils.GetDaysToDraw(Bars);
         _pdhpdlLines = new PdhpdlLines(
             Chart,
@@ -58,7 +52,7 @@ public class PDHPDLBreakandReversev1 : Robot
         );
 
         _pdhpdlLines.Draw();
-        
+
         _csvLogger = new PdhpdlTradeCsvLogger();
         Print("****CSV logger path: {0}", _csvLogger.FilePath);
 
@@ -73,7 +67,7 @@ public class PDHPDLBreakandReversev1 : Robot
             Tp2R,
             _csvLogger
         );
-        
+
         Print("*****PDH/PDL step painter started. DaysToDraw: {0}", daysToDraw);
     }
 
@@ -132,6 +126,7 @@ public class PDHPDLBreakandReversev1 : Robot
                 signal.Pdh
             );
         }
+
         _signalMarkers.Draw(signal);
         _orderExecutor.ExecuteIfSignal(signal);
     }
