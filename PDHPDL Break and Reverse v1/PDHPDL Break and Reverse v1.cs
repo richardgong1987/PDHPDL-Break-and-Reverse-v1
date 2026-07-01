@@ -37,37 +37,18 @@ public class PDHPDLBreakandReversev1 : Robot {
 
     protected override void OnStart() {
         int daysToDraw = PdhpdlUtils.GetDaysToDraw(Bars);
-        _pdhpdlLines = new PdhpdlLines(
-            Chart,
-            MarketData,
-            SymbolName,
-            daysToDraw,
-            LineThickness
-        );
+        _pdhpdlLines = new PdhpdlLines(Chart, MarketData, SymbolName, daysToDraw, LineThickness);
         _dailyBars = MarketData.GetBars(TimeFrame.Daily, SymbolName);
 
-        _signalMarkers = new PdhpdlSignalMarkers(
-            Chart,
-            Symbol.TickSize
-        );
+        _signalMarkers = new PdhpdlSignalMarkers(Chart, Symbol.TickSize);
 
         _pdhpdlLines.Draw();
 
         _csvLogger = new PdhpdlTradeCsvLogger();
         Print("****CSV logger path: {0}", _csvLogger.FilePath);
 
-        _orderExecutor = new PdhpdlOrderExecutor(
-            this,
-            Symbol,
-            SymbolName,
-            Bars.TimeFrame.ToString(),
-            RiskPct,
-            StopOffsetTicks,
-            Tp1R,
-            Tp2R,
-            EntryMode,
-            _csvLogger
-        );
+        _orderExecutor = new PdhpdlOrderExecutor(this, Symbol, SymbolName, Bars.TimeFrame.ToString(), RiskPct, StopOffsetTicks, Tp1R, Tp2R,
+            EntryMode, _csvLogger);
 
         Print("*****PDH/PDL step painter started. DaysToDraw: {0}", daysToDraw);
     }
@@ -77,49 +58,26 @@ public class PDHPDLBreakandReversev1 : Robot {
         DetectFalseBreakoutOnClosedBar();
     }
 
-    protected override void OnTick() {
-    }
+    protected override void OnTick() { }
 
 
     private void DetectFalseBreakoutOnClosedBar() {
-        PdhpdlSignal signal = PdhpdlUtils.DetectFalseBreakoutOnClosedBar(
-            Bars,
-            _dailyBars
-        );
+        PdhpdlSignal signal = PdhpdlUtils.DetectFalseBreakoutOnClosedBar(Bars, _dailyBars);
 
         if (!signal.HasData)
             return;
 
         if (ShowDebugLogs) {
-            Print(
-                "*****Bar closed | Time: {0}, High: {1}, Low: {2}, Close: {3}, PDH: {4}, PDL: {5}",
-                signal.BarTime,
-                signal.High,
-                signal.Low,
-                signal.Close,
-                signal.Pdh,
-                signal.Pdl
-            );
+            Print("*****Bar closed | Time: {0}, High: {1}, Low: {2}, Close: {3}, PDH: {4}, PDL: {5}", signal.BarTime, signal.High,
+                signal.Low, signal.Close, signal.Pdh, signal.Pdl);
         }
 
         if (signal.IsLongSignal) {
-            Print(
-                "*****LONG trigger | Time: {0}, Low: {1}, Close: {2}, PDL: {3}",
-                signal.BarTime,
-                signal.Low,
-                signal.Close,
-                signal.Pdl
-            );
+            Print("*****LONG trigger | Time: {0}, Low: {1}, Close: {2}, PDL: {3}", signal.BarTime, signal.Low, signal.Close, signal.Pdl);
         }
 
         if (signal.IsShortSignal) {
-            Print(
-                "*****SHORT trigger | Time: {0}, High: {1}, Close: {2}, PDH: {3}",
-                signal.BarTime,
-                signal.High,
-                signal.Close,
-                signal.Pdh
-            );
+            Print("*****SHORT trigger | Time: {0}, High: {1}, Close: {2}, PDH: {3}", signal.BarTime, signal.High, signal.Close, signal.Pdh);
         }
 
         _signalMarkers.Draw(signal);
