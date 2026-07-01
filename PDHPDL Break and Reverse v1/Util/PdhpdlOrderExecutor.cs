@@ -137,7 +137,7 @@ public class PdhpdlOrderExecutor {
     }
 
     private PdhpdlOrderPlan CreatePlan(PdhpdlSignal signal) {
-        PdhpdlOrderPlan plan = new PdhpdlOrderPlan();
+        PdhpdlOrderPlan plan = new();
 
         TradeType tradeType = signal.IsLongSignal ? TradeType.Buy : TradeType.Sell;
 
@@ -301,7 +301,7 @@ public class PdhpdlOrderExecutor {
             string side = plan.TradeType == TradeType.Buy ? "B" : "S";
             string keyLevel = plan.TradeType == TradeType.Buy ? "PDL" : "PDH";
 
-            PdhpdlTradeCsvRecord record = new PdhpdlTradeCsvRecord {
+            var record = new PdhpdlTradeCsvRecord {
                 Side = side,
                 KeyLevel = keyLevel,
                 Signal = "false-breakout",
