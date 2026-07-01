@@ -58,15 +58,15 @@ public class PdhpdlOrderExecutor
         if (!signal.IsLongSignal && !signal.IsShortSignal)
             return;
 
-        if (HasOpenStrategyPosition())
+        if (HasOpenSymbolPosition())
         {
-            _robot.Print("*****Order skipped | Existing PDHPDL position found.");
+            _robot.Print("*****Order skipped | Existing position found on symbol: {0}", _symbolName);
             return;
         }
 
-        if (HasOpenStrategyPendingOrder())
+        if (HasOpenSymbolPendingOrder())
         {
-            _robot.Print("*****Order skipped | Existing PDHPDL pending order found.");
+            _robot.Print("*****Order skipped | Existing pending order found on symbol: {0}", _symbolName);
             return;
         }
 
@@ -81,21 +81,17 @@ public class PdhpdlOrderExecutor
         ExecutePlan(plan);
     }
 
-    private bool HasOpenStrategyPosition()
+    private bool HasOpenSymbolPosition()
     {
         return _robot.Positions.Any(position =>
-            position.SymbolName == _symbolName &&
-            position.Label != null &&
-            position.Label.StartsWith(LabelPrefix)
+            position.SymbolName == _symbolName
         );
     }
 
-    private bool HasOpenStrategyPendingOrder()
+    private bool HasOpenSymbolPendingOrder()
     {
         return _robot.PendingOrders.Any(order =>
-            order.SymbolName == _symbolName &&
-            order.Label != null &&
-            order.Label.StartsWith(LabelPrefix)
+            order.SymbolName == _symbolName
         );
     }
 
