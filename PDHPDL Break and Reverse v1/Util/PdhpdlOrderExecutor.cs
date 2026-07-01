@@ -22,7 +22,6 @@ public class PdhpdlOrderExecutor {
 
     private readonly string _timeFrame;
     private readonly PdhpdlTradeCsvLogger _csvLogger;
-    private bool _isClosingAfterStop;
 
     public PdhpdlOrderExecutor(Robot robot, Symbol symbol, string symbolName, string timeFrame, double riskPct, int stopOffsetTicks,
         double tp1R, double tp2R, PdhpdlEntryMode entryMode, PdhpdlTradeCsvLogger csvLogger) {
@@ -37,12 +36,6 @@ public class PdhpdlOrderExecutor {
         _tp2R = tp2R;
         _entryMode = entryMode;
         _csvLogger = csvLogger;
-
-        _robot.Positions.Closed += OnPositionClosed;
-    }
-
-    public void Stop() {
-        _robot.Positions.Closed -= OnPositionClosed;
     }
 
     public void ExecuteIfSignal(PdhpdlSignal signal) {
@@ -78,62 +71,6 @@ public class PdhpdlOrderExecutor {
 
     private bool HasOpenSymbolPendingOrder() {
         return _robot.PendingOrders.Any(order => order.SymbolName == _symbolName);
-    }
-
-    private void OnPositionClosed(PositionClosedEventArgs args) {
-        if (_isClosingAfterStop)
-            return;
-
-        if (args == null || args.Position == null)
-            return;
-
-        if (!IsStrategyPosition(args.Position))
-            return;
-
-        if (args.Reason != PositionCloseReason.StopLoss && args.Reason != PositionCloseReason.StopOut) {
-            return;
-        }
-
-        CloseStrategyExposureAfterStop(args.Position, args.Reason);
-    }
-
-    private bool IsStrategyPosition(Position position) {
-        return IsStrategyOrder(position.SymbolName, position.Label);
-    }
-
-    private bool IsStrategyPendingOrder(PendingOrder order) {
-        return IsStrategyOrder(order.SymbolName, order.Label);
-    }
-
-    private bool IsStrategyOrder(string symbolName, string label) {
-        return symbolName == _symbolName && label != null && label.StartsWith(LabelPrefix);
-    }
-
-    private void CloseStrategyExposureAfterStop(Position stoppedPosition, PositionCloseReason reason) {
-        _isClosingAfterStop = true;
-
-        try {
-            _robot.Print("*****Stop detected | Reason: {0}, ClosedPosition: {1}. Closing remaining PDHPDL exposure.", reason,
-                stoppedPosition.Label);
-
-            foreach (Position position in _robot.Positions.Where(IsStrategyPosition).ToArray()) {
-                TradeResult result = _robot.ClosePosition(position);
-
-                if (!result.IsSuccessful) {
-                    _robot.Print("*****Close remaining position failed | Label: {0}, Error: {1}", position.Label, result.Error);
-                }
-            }
-
-            foreach (PendingOrder order in _robot.PendingOrders.Where(IsStrategyPendingOrder).ToArray()) {
-                TradeResult result = _robot.CancelPendingOrder(order);
-
-                if (!result.IsSuccessful) {
-                    _robot.Print("*****Cancel remaining pending order failed | Label: {0}, Error: {1}", order.Label, result.Error);
-                }
-            }
-        } finally {
-            _isClosingAfterStop = false;
-        }
     }
 
     private PdhpdlOrderPlan CreatePlan(PdhpdlSignal signal) {
