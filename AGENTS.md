@@ -513,6 +513,18 @@ Fix volume calculation before adding:
 
 Use clear C#.
 
+This project uses Java-style C# formatting. Put opening braces on the same line as the
+declaration or control statement:
+
+```csharp
+public void ExecuteIfSignal(PdhpdlSignal signal) {
+    if (signal == null || !signal.HasData)
+        return;
+}
+```
+
+Do not reformat touched code back to C# default Allman-style braces.
+
 Prefer:
 
 ```csharp
