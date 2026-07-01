@@ -27,6 +27,9 @@ public class PDHPDLBreakandReversev1 : Robot
     [Parameter("TP2 R", DefaultValue = 4.0, MinValue = 0.5, MaxValue = 20.0, Step = 0.1)]
     public double Tp2R { get; set; }
 
+    [Parameter("Entry Mode", DefaultValue = PdhpdlEntryMode.Close)]
+    public PdhpdlEntryMode EntryMode { get; set; }
+
 
     private PdhpdlLines _pdhpdlLines;
     private Bars _dailyBars;
@@ -65,6 +68,7 @@ public class PDHPDLBreakandReversev1 : Robot
             StopOffsetTicks,
             Tp1R,
             Tp2R,
+            EntryMode,
             _csvLogger
         );
 

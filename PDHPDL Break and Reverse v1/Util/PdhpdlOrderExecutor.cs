@@ -19,6 +19,7 @@ public class PdhpdlOrderExecutor
     private readonly int _stopOffsetTicks;
     private readonly double _tp1R;
     private readonly double _tp2R;
+    private readonly PdhpdlEntryMode _entryMode;
 
     private readonly string _timeFrame;
     private readonly PdhpdlTradeCsvLogger _csvLogger;
@@ -32,6 +33,7 @@ public class PdhpdlOrderExecutor
         int stopOffsetTicks,
         double tp1R,
         double tp2R,
+        PdhpdlEntryMode entryMode,
         PdhpdlTradeCsvLogger csvLogger
     )
     {
@@ -44,6 +46,7 @@ public class PdhpdlOrderExecutor
         _stopOffsetTicks = stopOffsetTicks;
         _tp1R = tp1R;
         _tp2R = tp2R;
+        _entryMode = entryMode;
         _csvLogger = csvLogger;
     }
 
@@ -58,6 +61,12 @@ public class PdhpdlOrderExecutor
         if (HasOpenStrategyPosition())
         {
             _robot.Print("*****Order skipped | Existing PDHPDL position found.");
+            return;
+        }
+
+        if (HasOpenStrategyPendingOrder())
+        {
+            _robot.Print("*****Order skipped | Existing PDHPDL pending order found.");
             return;
         }
 
@@ -81,6 +90,15 @@ public class PdhpdlOrderExecutor
         );
     }
 
+    private bool HasOpenStrategyPendingOrder()
+    {
+        return _robot.PendingOrders.Any(order =>
+            order.SymbolName == _symbolName &&
+            order.Label != null &&
+            order.Label.StartsWith(LabelPrefix)
+        );
+    }
+
     private PdhpdlOrderPlan CreatePlan(PdhpdlSignal signal)
     {
         PdhpdlOrderPlan plan = new PdhpdlOrderPlan();
@@ -89,9 +107,10 @@ public class PdhpdlOrderExecutor
             ? TradeType.Buy
             : TradeType.Sell;
 
-        double entry = signal.Close;
+        double closeEntry = signal.Close;
         double stopOffset = _symbol.TickSize * _stopOffsetTicks;
 
+        double entry;
         double stop;
         double riskPrice;
         double tp1;
@@ -100,6 +119,7 @@ public class PdhpdlOrderExecutor
         if (tradeType == TradeType.Buy)
         {
             stop = signal.Low - stopOffset;
+            entry = GetEntryPrice(closeEntry, stop, tradeType);
             riskPrice = entry - stop;
             tp1 = entry + _tp1R * riskPrice;
             tp2 = entry + _tp2R * riskPrice;
@@ -107,6 +127,7 @@ public class PdhpdlOrderExecutor
         else
         {
             stop = signal.High + stopOffset;
+            entry = GetEntryPrice(closeEntry, stop, tradeType);
             riskPrice = stop - entry;
             tp1 = entry - _tp1R * riskPrice;
             tp2 = entry - _tp2R * riskPrice;
@@ -172,6 +193,8 @@ public class PdhpdlOrderExecutor
 
         plan.IsValid = true;
         plan.TradeType = tradeType;
+        plan.EntryMode = _entryMode;
+        plan.IsMarketOrder = _entryMode == PdhpdlEntryMode.Close;
         plan.EntryPrice = entry;
         plan.StopPrice = stop;
         plan.Tp1Price = tp1;
@@ -191,11 +214,42 @@ public class PdhpdlOrderExecutor
         return plan;
     }
 
+    private double GetEntryPrice(double closeEntry, double stop, TradeType tradeType)
+    {
+        double ratio = GetPullbackRatio();
+
+        if (ratio <= 0.0)
+            return closeEntry;
+
+        double distanceToStop = Math.Abs(closeEntry - stop);
+
+        if (tradeType == TradeType.Buy)
+            return closeEntry - distanceToStop * ratio;
+
+        return closeEntry + distanceToStop * ratio;
+    }
+
+    private double GetPullbackRatio()
+    {
+        switch (_entryMode)
+        {
+            case PdhpdlEntryMode.Pullback25:
+                return 0.25;
+            case PdhpdlEntryMode.Pullback382:
+                return 0.382;
+            case PdhpdlEntryMode.Pullback50:
+                return 0.50;
+            default:
+                return 0.0;
+        }
+    }
+
     private void ExecutePlan(PdhpdlOrderPlan plan)
     {
         _robot.Print(
-            "*****Order plan | Side: {0}, Entry: {1}, Stop: {2}, TP1: {3}, TP2: {4}, RiskPrice: {5}, StopLossPips: {6}, RiskMoney: {7}, EstimatedRiskMoney: {8}, Lots: {9}, TotalVolumeUnits: {10}, VolumePerLegUnits: {11}",
+            "*****Order plan | Side: {0}, EntryMode: {1}, Entry: {2}, Stop: {3}, TP1: {4}, TP2: {5}, RiskPrice: {6}, StopLossPips: {7}, RiskMoney: {8}, EstimatedRiskMoney: {9}, Lots: {10}, TotalVolumeUnits: {11}, VolumePerLegUnits: {12}",
             plan.TradeType,
+            plan.EntryMode,
             plan.EntryPrice,
             plan.StopPrice,
             plan.Tp1Price,
@@ -209,11 +263,11 @@ public class PdhpdlOrderExecutor
             plan.VolumePerLegInUnits
         );
 
-        TradeResult tp1Result = _robot.ExecuteMarketOrder(
+        TradeResult tp1Result = ExecuteLeg(
             plan.TradeType,
-            _symbolName,
-            plan.VolumePerLegInUnits,
             plan.Tp1Label,
+            plan.VolumePerLegInUnits,
+            plan.EntryPrice,
             plan.StopLossPips,
             plan.Tp1Pips,
             Tp1Comment
@@ -225,11 +279,11 @@ public class PdhpdlOrderExecutor
             return;
         }
 
-        TradeResult runnerResult = _robot.ExecuteMarketOrder(
+        TradeResult runnerResult = ExecuteLeg(
             plan.TradeType,
-            _symbolName,
-            plan.VolumePerLegInUnits,
             plan.RunnerLabel,
+            plan.VolumePerLegInUnits,
+            plan.EntryPrice,
             plan.StopLossPips,
             plan.Tp2Pips,
             RunnerComment
@@ -242,15 +296,55 @@ public class PdhpdlOrderExecutor
             if (tp1Result.Position != null)
                 _robot.ClosePosition(tp1Result.Position);
 
+            if (tp1Result.PendingOrder != null)
+                _robot.CancelPendingOrder(tp1Result.PendingOrder);
+
             return;
         }
 
         _robot.Print(
-            "*****Orders opened | TP1: {0}, Runner: {1}",
+            "*****Orders submitted | TP1: {0}, Runner: {1}",
             plan.Tp1Label,
             plan.RunnerLabel
         );
         WriteCsvRecord(plan);
+    }
+
+    private TradeResult ExecuteLeg(
+        TradeType tradeType,
+        string label,
+        double volumeInUnits,
+        double entryPrice,
+        double stopLossPips,
+        double takeProfitPips,
+        string comment
+    )
+    {
+        if (_entryMode == PdhpdlEntryMode.Close)
+        {
+            return _robot.ExecuteMarketOrder(
+                tradeType,
+                _symbolName,
+                volumeInUnits,
+                label,
+                stopLossPips,
+                takeProfitPips,
+                comment
+            );
+        }
+
+        return _robot.PlaceLimitOrder(
+            tradeType,
+            _symbolName,
+            volumeInUnits,
+            entryPrice,
+            label,
+            stopLossPips,
+            takeProfitPips,
+            ProtectionType.Relative,
+            null,
+            comment
+        );
     }
 
     private void WriteCsvRecord(PdhpdlOrderPlan plan)
@@ -265,10 +359,10 @@ public class PdhpdlOrderExecutor
                 Side = side,
                 KeyLevel = keyLevel,
                 Signal = "false-breakout",
-                CloseEntryResult = "",
-                Pullback25Result = "",
-                Pullback382Result = "",
-                Pullback50Result = "",
+                CloseEntryResult = GetEntryModeCsvValue(PdhpdlEntryMode.Close, plan.EntryMode),
+                Pullback25Result = GetEntryModeCsvValue(PdhpdlEntryMode.Pullback25, plan.EntryMode),
+                Pullback382Result = GetEntryModeCsvValue(PdhpdlEntryMode.Pullback382, plan.EntryMode),
+                Pullback50Result = GetEntryModeCsvValue(PdhpdlEntryMode.Pullback50, plan.EntryMode),
                 Comment = "",
                 Symbol = _symbolName,
                 TimeFrame = _timeFrame,
@@ -289,5 +383,10 @@ public class PdhpdlOrderExecutor
         {
             _robot.Print("*****CSV write failed | {0}", ex.Message);
         }
+    }
+
+    private static string GetEntryModeCsvValue(PdhpdlEntryMode columnMode, PdhpdlEntryMode selectedMode)
+    {
+        return columnMode == selectedMode ? "ORDER" : "";
     }
 }

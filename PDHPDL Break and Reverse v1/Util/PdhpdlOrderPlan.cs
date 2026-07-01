@@ -10,6 +10,10 @@ public class PdhpdlOrderPlan
 
     public TradeType TradeType { get; set; }
 
+    public PdhpdlEntryMode EntryMode { get; set; }
+
+    public bool IsMarketOrder { get; set; }
+
     public double EntryPrice { get; set; }
 
     public double StopPrice { get; set; }
