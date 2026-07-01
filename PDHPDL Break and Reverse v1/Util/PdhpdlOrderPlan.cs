@@ -2,8 +2,7 @@ using cAlgo.API;
 
 namespace cAlgo.Robots;
 
-public class PdhpdlOrderPlan
-{
+public class PdhpdlOrderPlan {
     public bool IsValid { get; set; }
 
     public string RejectReason { get; set; }

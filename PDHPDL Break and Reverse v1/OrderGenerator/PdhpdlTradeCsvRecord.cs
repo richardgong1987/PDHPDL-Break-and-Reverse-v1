@@ -2,8 +2,7 @@ using System;
 
 namespace cAlgo.Robots;
 
-public class PdhpdlTradeCsvRecord
-{
+public class PdhpdlTradeCsvRecord {
     public string Side { get; set; }
 
     public string KeyLevel { get; set; }

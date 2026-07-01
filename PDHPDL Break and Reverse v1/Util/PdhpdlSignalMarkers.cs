@@ -4,8 +4,7 @@ using cAlgo.API;
 
 namespace cAlgo.Robots;
 
-public class PdhpdlSignalMarkers
-{
+public class PdhpdlSignalMarkers {
     private const string Prefix = "PDH_PDL_SIGNAL_";
 
     private const int IconOffsetTicks = 120;
@@ -17,18 +16,13 @@ public class PdhpdlSignalMarkers
     private readonly double _textOffset;
     private readonly HashSet<string> _objectNames = new();
 
-    public PdhpdlSignalMarkers(
-        Chart chart,
-        double tickSize
-    )
-    {
+    public PdhpdlSignalMarkers(Chart chart, double tickSize) {
         _chart = chart;
         _iconOffset = tickSize * IconOffsetTicks;
         _textOffset = tickSize * TextOffsetTicks;
     }
 
-    public void Draw(PdhpdlSignal signal)
-    {
+    public void Draw(PdhpdlSignal signal) {
         if (signal == null || !signal.HasData)
             return;
 
@@ -39,18 +33,15 @@ public class PdhpdlSignalMarkers
             DrawShort(signal);
     }
 
-    public void Clear()
-    {
-        foreach (string name in _objectNames)
-        {
+    public void Clear() {
+        foreach (string name in _objectNames) {
             _chart.RemoveObject(name);
         }
 
         _objectNames.Clear();
     }
 
-    private void DrawLong(PdhpdlSignal signal)
-    {
+    private void DrawLong(PdhpdlSignal signal) {
         string key = GetKey(signal);
 
         double iconPrice = signal.Low - _iconOffset;
@@ -62,21 +53,9 @@ public class PdhpdlSignalMarkers
         RemoveExisting(iconName);
         RemoveExisting(textName);
 
-        _chart.DrawIcon(
-            iconName,
-            ChartIconType.UpTriangle,
-            signal.BarIndex,
-            iconPrice,
-            Color.Lime
-        );
+        _chart.DrawIcon(iconName, ChartIconType.UpTriangle, signal.BarIndex, iconPrice, Color.Lime);
 
-        ChartText text = _chart.DrawText(
-            textName,
-            "L",
-            signal.BarIndex,
-            textPrice,
-            Color.Lime
-        );
+        ChartText text = _chart.DrawText(textName, "L", signal.BarIndex, textPrice, Color.Lime);
 
         ApplyTextStyle(text);
 
@@ -84,8 +63,7 @@ public class PdhpdlSignalMarkers
         _objectNames.Add(textName);
     }
 
-    private void DrawShort(PdhpdlSignal signal)
-    {
+    private void DrawShort(PdhpdlSignal signal) {
         string key = GetKey(signal);
 
         double iconPrice = signal.High + _iconOffset;
@@ -97,21 +75,9 @@ public class PdhpdlSignalMarkers
         RemoveExisting(iconName);
         RemoveExisting(textName);
 
-        _chart.DrawIcon(
-            iconName,
-            ChartIconType.DownTriangle,
-            signal.BarIndex,
-            iconPrice,
-            Color.Red
-        );
+        _chart.DrawIcon(iconName, ChartIconType.DownTriangle, signal.BarIndex, iconPrice, Color.Red);
 
-        ChartText text = _chart.DrawText(
-            textName,
-            "S",
-            signal.BarIndex,
-            textPrice,
-            Color.Red
-        );
+        ChartText text = _chart.DrawText(textName, "S", signal.BarIndex, textPrice, Color.Red);
 
         ApplyTextStyle(text);
 
@@ -119,22 +85,19 @@ public class PdhpdlSignalMarkers
         _objectNames.Add(textName);
     }
 
-    private static void ApplyTextStyle(ChartText text)
-    {
+    private static void ApplyTextStyle(ChartText text) {
         text.FontSize = TextFontSize;
         text.IsBold = true;
         text.HorizontalAlignment = HorizontalAlignment.Center;
         text.VerticalAlignment = VerticalAlignment.Center;
     }
 
-    private void RemoveExisting(string name)
-    {
+    private void RemoveExisting(string name) {
         _chart.RemoveObject(name);
         _objectNames.Remove(name);
     }
 
-    private static string GetKey(PdhpdlSignal signal)
-    {
+    private static string GetKey(PdhpdlSignal signal) {
         return signal.BarTime.ToString("yyyyMMdd_HHmmss");
     }
 }
