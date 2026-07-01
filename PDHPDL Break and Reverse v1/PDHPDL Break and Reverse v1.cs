@@ -9,25 +9,25 @@ namespace cAlgo.Robots;
 [Robot(TimeZone = TimeZones.TokyoStandardTime, AccessRights = AccessRights.FullAccess, AddIndicators = true)]
 public class PDHPDLBreakandReversev1 : Robot
 {
-    [Parameter("Line Thickness", DefaultValue = 3)]
+    [Parameter("线的粗细度", DefaultValue = 3)]
     public int LineThickness { get; set; }
 
-    [Parameter("Show Debug Logs", DefaultValue = false)]
+    [Parameter("展示调试日志", DefaultValue = false)]
     public bool ShowDebugLogs { get; set; }
 
-    [Parameter("Risk % per Trade", DefaultValue = 1.0, MinValue = 0.1, MaxValue = 10.0, Step = 0.1)]
+    [Parameter("每笔交易风险百分比，默认1%", DefaultValue = 1.0, MinValue = 0.1, MaxValue = 10.0, Step = 0.1)]
     public double RiskPct { get; set; }
 
-    [Parameter("Stop Offset Ticks", DefaultValue = 15, MinValue = 0, MaxValue = 1000)]
+    [Parameter("止损偏移点数", DefaultValue = 15, MinValue = 0, MaxValue = 1000)]
     public int StopOffsetTicks { get; set; }
 
-    [Parameter("TP1 R", DefaultValue = 2.0, MinValue = 0.5, MaxValue = 20.0, Step = 0.1)]
+    [Parameter("第一止盈目标", DefaultValue = 2.0, MinValue = 0.5, MaxValue = 20.0, Step = 0.1)]
     public double Tp1R { get; set; }
 
-    [Parameter("TP2 R", DefaultValue = 4.0, MinValue = 0.5, MaxValue = 20.0, Step = 0.1)]
+    [Parameter("第二止盈目标", DefaultValue = 4.0, MinValue = 0.5, MaxValue = 20.0, Step = 0.1)]
     public double Tp2R { get; set; }
 
-    [Parameter("Entry Mode", DefaultValue = PdhpdlEntryMode.Close)]
+    [Parameter("回撤开仓模式", DefaultValue = PdhpdlEntryMode.Close)]
     public PdhpdlEntryMode EntryMode { get; set; }
 
 
