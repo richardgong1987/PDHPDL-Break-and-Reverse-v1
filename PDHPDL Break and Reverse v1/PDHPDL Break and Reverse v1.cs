@@ -7,10 +7,8 @@ using cAlgo.API.Internals;
 namespace cAlgo.Robots;
 
 [Robot(TimeZone = TimeZones.TokyoStandardTime, AccessRights = AccessRights.FullAccess, AddIndicators = true)]
-public class PDHPDLBreakandReversev1 : Robot
-{
-    [Parameter("线的粗细度", DefaultValue = 3)]
-    public int LineThickness { get; set; }
+public class PDHPDLBreakandReversev1 : Robot {
+    [Parameter("线的粗细度", DefaultValue = 3)] public int LineThickness { get; set; }
 
     [Parameter("展示调试日志", DefaultValue = false)]
     public bool ShowDebugLogs { get; set; }
@@ -37,8 +35,7 @@ public class PDHPDLBreakandReversev1 : Robot
     private PdhpdlOrderExecutor _orderExecutor;
     private PdhpdlTradeCsvLogger _csvLogger;
 
-    protected override void OnStart()
-    {
+    protected override void OnStart() {
         int daysToDraw = PdhpdlUtils.GetDaysToDraw(Bars);
         _pdhpdlLines = new PdhpdlLines(
             Chart,
@@ -75,19 +72,16 @@ public class PDHPDLBreakandReversev1 : Robot
         Print("*****PDH/PDL step painter started. DaysToDraw: {0}", daysToDraw);
     }
 
-    protected override void OnBar()
-    {
+    protected override void OnBar() {
         _pdhpdlLines.Draw();
         DetectFalseBreakoutOnClosedBar();
     }
 
-    protected override void OnTick()
-    {
+    protected override void OnTick() {
     }
 
 
-    private void DetectFalseBreakoutOnClosedBar()
-    {
+    private void DetectFalseBreakoutOnClosedBar() {
         PdhpdlSignal signal = PdhpdlUtils.DetectFalseBreakoutOnClosedBar(
             Bars,
             _dailyBars
@@ -96,8 +90,7 @@ public class PDHPDLBreakandReversev1 : Robot
         if (!signal.HasData)
             return;
 
-        if (ShowDebugLogs)
-        {
+        if (ShowDebugLogs) {
             Print(
                 "*****Bar closed | Time: {0}, High: {1}, Low: {2}, Close: {3}, PDH: {4}, PDL: {5}",
                 signal.BarTime,
@@ -109,8 +102,7 @@ public class PDHPDLBreakandReversev1 : Robot
             );
         }
 
-        if (signal.IsLongSignal)
-        {
+        if (signal.IsLongSignal) {
             Print(
                 "*****LONG trigger | Time: {0}, Low: {1}, Close: {2}, PDL: {3}",
                 signal.BarTime,
@@ -120,8 +112,7 @@ public class PDHPDLBreakandReversev1 : Robot
             );
         }
 
-        if (signal.IsShortSignal)
-        {
+        if (signal.IsShortSignal) {
             Print(
                 "*****SHORT trigger | Time: {0}, High: {1}, Close: {2}, PDH: {3}",
                 signal.BarTime,
@@ -135,9 +126,9 @@ public class PDHPDLBreakandReversev1 : Robot
         _orderExecutor.ExecuteIfSignal(signal);
     }
 
-    protected override void OnStop()
-    {
+    protected override void OnStop() {
         Print("*****cBot stopped.*******************");
+        _orderExecutor?.Stop();
         _signalMarkers?.Clear();
         _pdhpdlLines?.Clear();
     }
