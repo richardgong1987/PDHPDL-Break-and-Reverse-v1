@@ -8,6 +8,7 @@ namespace cAlgo.Robots;
 public class PdhpdlTradeCsvLogger
 {
     private const string FileName = "pdhpdl-trades.csv";
+    private static readonly Encoding CsvEncoding = new UTF8Encoding(true);
 
     private readonly string _filePath;
 
@@ -49,15 +50,37 @@ public class PdhpdlTradeCsvLogger
             Escape(record.RiskPrice.ToString(CultureInfo.InvariantCulture)),
             Escape(record.VolumeInUnits.ToString(CultureInfo.InvariantCulture))
         );
-        File.AppendAllText(_filePath, line + Environment.NewLine, new UTF8Encoding(true));
+        File.AppendAllText(_filePath, line + Environment.NewLine, CsvEncoding);
     }
 
     private void EnsureFileExists()
     {
-        if (File.Exists(_filePath))
+        string header = BuildHeader();
+
+        if (!File.Exists(_filePath))
+        {
+            File.WriteAllText(_filePath, header + Environment.NewLine, CsvEncoding);
+            return;
+        }
+
+        string[] lines = File.ReadAllLines(_filePath);
+
+        if (lines.Length == 0)
+        {
+            File.WriteAllText(_filePath, header + Environment.NewLine, CsvEncoding);
+            return;
+        }
+
+        if (lines[0] == header)
             return;
 
-        string header = string.Join(
+        lines[0] = header;
+        File.WriteAllLines(_filePath, lines, CsvEncoding);
+    }
+
+    private static string BuildHeader()
+    {
+        return string.Join(
             ",",
             "编号",
             "多空",
@@ -68,18 +91,16 @@ public class PdhpdlTradeCsvLogger
             "回撤38.2入场",
             "回撤50入场",
             "备注",
-            "Symbol",
-            "TimeFrame",
-            "EntryTime",
-            "EntryPrice",
-            "StopPrice",
-            "TP1Price",
-            "TP2Price",
-            "RiskPrice",
-            "VolumeInUnits"
+            "交易品种",
+            "时间周期",
+            "入场时间",
+            "入场价格",
+            "止损价格",
+            "第一止盈价格",
+            "第二止盈价格",
+            "风险价格距离",
+            "下单数量"
         );
-
-        File.WriteAllText(_filePath, header + Environment.NewLine,new UTF8Encoding(true));
     }
 
     private int GetNextId()
